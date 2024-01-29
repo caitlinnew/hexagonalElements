@@ -1,0 +1,291 @@
+openapi: 3.0.1
+x-stoplight:
+  id: ds5rrvffd4ji5
+info:
+  title: Service Book API
+  description: |-
+    <!-- theme: info -->
+
+    > #### This is an API draft
+  version: '2023-11-29'
+  contact:
+    name: Bosch eBike Systems Partner Portal
+    url: 'https://portal.bosch-ebike.com/services/cloud-api/help'
+    email: partnerportal.feedback@de.bosch.com
+servers:
+  - url: 'https://api.bosch-ebike.com/service-book/v1'
+    description: Production
+paths:
+  '/service-books/{bikeId}/service-records':
+    get:
+      description: |-
+        Returns a list of service records for the given bike id, associated with a user.
+
+        The list is sorted by `createdAt` in descending order.
+      operationId: get-service-book-records
+      parameters:
+        - name: bikeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serviceRecords:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ServiceRecord'
+                required:
+                  - serviceRecords
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: string
+      tags:
+        - Service Books
+      summary: List all service-book records
+      security:
+        - SingleKeyID: []
+      x-stoplight:
+        id: 5dd9x7zomw8yz
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: bikeId
+        in: path
+        required: true
+  '/service-books/{bikeId}/service-records/{recordId}':
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: bikeId
+        in: path
+        required: true
+      - schema:
+          type: string
+          format: uuid
+        name: recordId
+        in: path
+        required: true
+    get:
+      summary: Retrieve service-record details
+      tags:
+        - Service Books
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+              examples:
+                Example 1:
+                  value: JVBERi0xLjMKJbrfrOAKMyAwIG9iago8PC9UeXBlIC9QYWdlCi
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: Service Unavailable
+      operationId: get-service-record-details
+      description: 'Get service-record details in PDF format ([see example](https://cdn.web-ebds.prod.connected-biking.cloud/cloud-api/assets/inspection.pdf)).'
+      security:
+        - SingleKeyID: []
+      x-stoplight:
+        id: 2e0ldc4991io6
+components:
+  schemas:
+    ServiceRecord:
+      title: ServiceRecord
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique service record ID.
+        type:
+          type: string
+          enum:
+            - SOFTWARE_UPDATE
+            - BIKE_ID_CHANGE
+            - ACTUATOR_TEST
+            - INSPECTION
+            - CONFIGURATION_CHANGE
+          description: Type of the service record.
+        createdAt:
+          type: string
+          format: date-time
+          description: Date the service record was created.
+        bike:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: Bosch unique eBike ID.
+            oemId:
+              type: string
+              description: OEM unique eBike ID.
+            brandId:
+              type: string
+              description: OEM brand
+            odometer:
+              type: integer
+              format: int64
+              description: The total distance traveled in kilometers.
+        ibd:
+          type: object
+          description: Independent Bike Dealer
+          properties:
+            name:
+              type: string
+            street:
+              type: string
+            city:
+              type: string
+          required:
+            - name
+      required:
+        - id
+        - type
+        - createdAt
+        - bike
+      x-stoplight:
+        id: de097957pfjq0
+    Problem:
+      type: object
+      title: Problem
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: |
+            A URI reference that uniquely identifies the problem type only in the context of the provided API. Opposed to the specification in RFC-7807, it is neither recommended to be dereferenceable and point to a human-readable documentation nor globally unique for the problem type.
+          default: 'about:blank'
+          example: /some/uri-reference
+        title:
+          type: string
+          description: |
+            A short summary of the problem type. Written in English and readable for engineers, usually not suited for non technical stakeholders and not localized.
+          example: some title for the error situation
+        status:
+          type: integer
+          format: int32
+          description: |
+            The HTTP status code generated by the origin server for this occurrence of the problem.
+          minimum: 100
+          maximum: 600
+          exclusiveMaximum: true
+        detail:
+          type: string
+          description: |
+            A human readable explanation specific to this occurrence of the problem that is helpful to locate the problem and give advice on how to proceed. Written in English and readable for engineers, usually not suited for non technical stakeholders and not localized.
+          example: some description for the error situation
+        instance:
+          type: string
+          format: uri-reference
+          description: |
+            A URI reference that identifies the specific occurrence of the problem, e.g. by adding a fragment identifier or sub-path to the problem type. May be used to locate the root of this problem in the source code.
+          example: /some/uri-reference#specific-occurrence-context
+        requestId:
+          type: string
+          format: uuid
+          description: UUID for this specific request for the support
+          example: 075be661-d3a4-460b-98de-e5d66849dd5e
+      required:
+        - type
+        - detail
+        - requestId
+      x-stoplight:
+        id: 5tmnuh74xmqj9
+  securitySchemes:
+    SingleKeyID:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: 'https://p9.authz.bosch.com/auth/realms/obc/protocol/openid-connect/auth'
+          tokenUrl: 'https://p9.authz.bosch.com/auth/realms/obc/protocol/openid-connect/token'
+          refreshUrl: 'https://p9.authz.bosch.com/auth/realms/obc/protocol/openid-connect/token'
+          scopes:
+            'cloud-api:service-book:read': Enables reading eBike service-book records.
+            offline_access: Use this optional scope to request an offline token instead of a refresh token. The client application is responsible for securely persisting the offline token. The offline token never expires as long as it is used for a refresh token action at least once every 180 days.
+      description: |-
+        Bosch Identity & Access Management
+
+        **Offline Access:** Client applications may use [offline_access](https://openid.net/specs/openid-connect-core-1_0.html#OfflineAccess) tokens instead of refresh tokens. See the scope description below.
+  responses: {}
+tags:
+  - name: Service Books
+security:
+  - SingleKeyID:
+      - 'cloud-api:service-book:read'

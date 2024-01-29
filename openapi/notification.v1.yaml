@@ -1,0 +1,876 @@
+openapi: 3.0.0
+x-stoplight:
+  id: 6xw2wz273jrtg
+info:
+  title: ConnectModule Notification API
+  version: '2024-01-18'
+  contact:
+    name: Bosch eBike Systems Partner Portal
+    url: 'https://portal.bosch-ebike.com/services/cloud-api/help'
+    email: partnerportal.feedback@de.bosch.com
+  description: |-
+    <!-- theme: info -->
+
+    > #### This is an API draft
+
+    The Notification API enables you to subscribe to all BCM events at once, for which you have configuration permissions. Cloud API uses webhooks to push BCM notifications to your registered webhook listener.
+servers:
+  - url: 'https://api.bosch-ebike.com/notification/v1'
+    description: Production
+paths:
+  /webhooks:
+    post:
+      summary: Create a webhook
+      operationId: post-webhooks
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI for the newly created webhook.
+              required: true
+            X-Bosch-Cert-Url:
+              schema:
+                type: string
+              description: The X509 public key certificate. Download the certificate from this URL and use it to verify the signature of sent messages.
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: Service Unavailable
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Webhook'
+      description: Creates a webhook. Each event type can be only subscribed once.
+      callbacks:
+        notification:
+          '{$request.body#/url}':
+            post:
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      oneOf:
+                        - $ref: '#/components/schemas/WebhookTest'
+                        - $ref: '#/components/schemas/BikeStatus'
+                        - $ref: '#/components/schemas/LocationTracking'
+              responses:
+                '200':
+                  description: |
+                    Your server implementation should return this HTTP status code
+                    if the data was received successfully
+      security:
+        - Client: []
+      tags:
+        - ConnectModule Notifications
+      x-stoplight:
+        id: 6bv2jumuitqhj
+    get:
+      summary: List all webhooks
+      operationId: get-webhooks
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  webhooks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Webhook'
+                required:
+                  - webhooks
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: Service Unavailable
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      description: Get all webhooks belonging to the authenticated client.
+      security:
+        - Client: []
+      tags:
+        - ConnectModule Notifications
+      x-stoplight:
+        id: j831357ondqft
+    parameters: []
+  '/webhooks/{webhookId}':
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: webhookId
+        in: path
+        required: true
+    get:
+      summary: Retrieve a single webhook
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: Service Unavailable
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      operationId: get-webhook
+      security:
+        - Client: []
+      tags:
+        - ConnectModule Notifications
+      description: Get a single webhook belonging to the authenticated client.
+      x-stoplight:
+        id: mg9d94jsad3dv
+    delete:
+      summary: Delete webhook
+      operationId: delete-webhook
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: Service Unavailable
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      description: Deletes a webhook.
+      tags:
+        - ConnectModule Notifications
+      security:
+        - Client: []
+      x-stoplight:
+        id: kec00qdd7cb6a
+    put:
+      summary: Update a webhook
+      operationId: put-webhook
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: Service Unavailable
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Webhook'
+      description: Updates an existing webhook. Each event type can be only subscribed once.
+      security:
+        - Client: []
+      tags:
+        - ConnectModule Notifications
+      x-stoplight:
+        id: k8oacqm9tjau7
+  '/certs/{id}':
+    get:
+      summary: Retrieve a certificate
+      tags:
+        - ConnectModule Notifications
+      responses:
+        '200':
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: Service Unavailable
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      operationId: get-notifications-cert
+      description: Get a Bosch public X509 certificate to verify notification message signatures.
+      security: []
+      x-stoplight:
+        id: ju2esw3zuy6b2
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: id
+        in: path
+        required: true
+        description: Bosch public certificate ID
+  /health:
+    get:
+      summary: health
+      tags:
+        - Health
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                      - UP
+                      - WARN
+                required:
+                  - status
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-cache
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                      - DOWN
+                required:
+                  - status
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-cache
+      operationId: get-health
+      security: []
+      x-internal: true
+      description: Health status of the notification service. Indicates whether the service status is acceptable or not.
+      x-stoplight:
+        id: b3fyjjluru8gs
+    parameters: []
+  '/admin/webhooks/{clientId}':
+    parameters:
+      - name: clientId
+        in: path
+        required: true
+        description: OAuth client ID to remove webhook subscriptions for
+        schema:
+          type: string
+    delete:
+      summary: Delete webhook subscriptions for a client
+      operationId: delete-webhooks-for-client
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            text/html:
+              schema:
+                type: string
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: Service Unavailable
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security: []
+      x-internal: true
+      description: Triggers a deletion of all webhook subscriptions for the specified client.
+      tags:
+        - Admin
+      x-stoplight:
+        id: fz54je03br9ax
+components:
+  schemas:
+    Webhook:
+      title: Webhook
+      type: object
+      x-stoplight:
+        id: mwasty2iz1wl9
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Webhook ID.
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          description: The Internet accessible URL configured to listen for incoming POST notification messages containing event information. Only HTTPS is allowed!
+          example: 'https://your-service.com'
+          x-faker: internet.url
+        description:
+          type: string
+          example: Your webhook description.
+          x-faker: lorem.words
+        eventTypes:
+          type: array
+          description: List of event types the webhooks subscribes to.
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+            enum:
+              - LOCATION_TRACKING
+              - BIKE_STATUS
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the webhook was created.
+          readOnly: true
+          x-faker: date.past
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the webhook was changed.
+          readOnly: true
+          x-faker: date.recent
+        authentication:
+          $ref: '#/components/schemas/Authentication'
+      required:
+        - id
+        - url
+        - eventTypes
+        - createdAt
+        - updatedAt
+    Authentication:
+      title: Authentication
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          example: Authorization
+          description: Name of header or query parameter.
+          minLength: 1
+          x-faker:
+            random.arrayElement:
+              - - Authorization
+                - api-key
+        secret:
+          type: string
+          example: Bearer 12345
+          writeOnly: true
+          x-faker: internet.password
+        location:
+          type: string
+          description: Should authentication passed as header or query parameter.
+          enum:
+            - HEADER
+            - QUERY
+      required:
+        - name
+        - secret
+        - location
+      x-stoplight:
+        id: fvmeyobtp8dj9
+    WebhookTest:
+      title: WebhookTest
+      type: object
+      description: Notification which will be sent to the provided callback URL during webhook creation.
+      properties:
+        type:
+          type: string
+          enum:
+            - WEBHOOK_TEST
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - type
+        - createdAt
+      x-stoplight:
+        id: t2wccq50gjc7o
+    BikeStatus:
+      title: BikeStatus
+      x-stoplight:
+        id: 4rzlwdf205j2s
+      type: object
+      x-examples:
+        Example 1:
+          bikeId: aee92d17-b30b-4841-aa40-c0573569b04c
+          oemBikeId: ZMFPKXJ9Y6ZRSTW4
+          createdAt: '2019-08-24T14:15:22Z'
+          type: BIKE_STATUS
+          battery:
+            isChargerConnected: false
+            isCharging: false
+            reachableRange:
+              - 94
+              - 71
+              - 74
+              - 48
+            systemRemainingEnergyForRider: 237
+            systemStateOfCharge: 35
+          odometer: 2565.925
+          connectModule:
+            id: BCM3100_EB1310000B_17918-0052-01-368-00-0000
+            batteryStatus: CHARGING
+            batteryVoltage: 3927
+      description: |-
+        <!-- theme: info -->
+
+        > #### Optional properties
+        >
+        > All optional properties in this schema are only available if the eBike is poweredOn or charging.
+      properties:
+        bikeId:
+          type: string
+          format: uuid
+          description: Bosch unique eBike ID.
+        oemBikeId:
+          type: string
+          description: OEM unique eBike ID.
+          example: ZMFPKXJ9Y6ZRSTW4
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp of when the data record was created on the Bosch ConnectModule.
+          x-stoplight:
+            id: s4iis309vrkhn
+        type:
+          type: string
+          enum:
+            - BIKE_STATUS
+        battery:
+          type: object
+          properties:
+            isChargerConnected:
+              type: boolean
+              description: True if the charger is currently connected to the bike.
+              default: false
+            isCharging:
+              type: boolean
+              description: True if the system is currently charging.
+              default: false
+            reachableRange:
+              type: array
+              minItems: 4
+              maxItems: 4
+              description: Reachable range in km per active assist mode sorted by weakest to strongest assist mode.
+              items:
+                type: integer
+                format: int32
+                minimum: 0
+            systemRemainingEnergyForRider:
+              type: integer
+              format: int32
+              description: Remaining energy for the rider in Wh.
+              minimum: 0
+              example: 237
+            systemStateOfCharge:
+              type: integer
+              format: int32
+              minimum: 0
+              example: 35
+              maximum: 100
+              description: The state of charge of the eBike system in %.
+        odometer:
+          type: number
+          default: 2565.925
+          format: float
+          description: The total distance in kilometers.
+        connectModule:
+          type: object
+          required:
+            - id
+            - batteryStatus
+            - batteryVoltage
+          properties:
+            id:
+              type: string
+              example: BCM3100_EB1310000B_17918-0052-01-368-00-0000
+              description: Bosch unique ConnectModule ID. Consists of `productCode` _ `partNumber` _ `serialNumber`.
+            batteryStatus:
+              type: string
+              enum:
+                - CHARGE_UNKNOWN
+                - CHARGE_OK
+                - NEED_CHARGE
+                - CHARGE_CRITICAL
+                - CHARGING
+                - CHARGE_FULL
+              default: CHARGING
+            batteryVoltage:
+              type: integer
+              format: int32
+              minimum: 0
+              example: 3927
+              description: Battery voltage of ConnectModule internal battery in mV.
+      required:
+        - bikeId
+        - oemBikeId
+        - createdAt
+        - type
+        - connectModule
+    LocationTracking:
+      type: array
+      title: LocationTracking
+      minItems: 1
+      description: |-
+        Periodically sent location tracking notification of an eBike, for which a movement was detected.
+        Note that periodically does not mean continuously, the notification will be sent so that the BCM battery is also preserved.
+      x-stoplight:
+        id: 4zwm1lcgokaot
+      items:
+        type: object
+        description: |-
+          Notification about an unauthorized movement of the eBike was detected. 
+          Will be sent periodically.
+
+          **INFO:** This notification is only available if you are subscribed to the `live` tier or higher.
+        properties:
+          bikeId:
+            type: string
+            format: uuid
+            description: Bosch unique eBike ID.
+          oemBikeId:
+            type: string
+            description: OEM unique eBike ID.
+            example: ZMFPKXJ9Y6ZRSTW4
+          createdAt:
+            type: string
+            format: date-time
+            description: Timestamp of when the data record was created on the Bosch ConnectModule.
+            x-stoplight:
+              id: qfsssv31cwdc3
+          type:
+            type: string
+            enum:
+              - LOCATION_TRACKING
+          connectModule:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                type: string
+                description: Bosch unique ConnectModule ID. Consists of `productCode` _ `partNumber` _ `serialNumber`.
+                example: BCM3100_EB1310000B_17918-0052-01-368-00-0000
+          currentLocation:
+            $ref: '#/components/schemas/Location'
+          isMoving:
+            type: boolean
+            description: Indicates if the eBike is moving.
+        required:
+          - bikeId
+          - oemBikeId
+          - createdAt
+          - type
+          - connectModule
+          - currentLocation
+          - isMoving
+    Location:
+      title: Location
+      type: object
+      x-stoplight:
+        id: 1y6s0m4w6ymzj
+      x-examples: {}
+      properties:
+        latitude:
+          type: number
+          format: float
+          example: 48.49431557026259
+        longitude:
+          type: number
+          format: float
+          example: 9.136659026316485
+        altitude:
+          type: number
+          format: float
+          description: Altitude in meters.
+          minimum: 0
+          example: 376
+        horizontalAccuracy:
+          type: number
+          format: float
+          description: Horizontal estimated position error in meters.
+          minimum: 0
+          example: 13.58
+        verticalAccuracy:
+          type: number
+          format: float
+          description: Vertical estimated position error in meters.
+          minimum: 0
+          example: 8.77
+        detectedAt:
+          type: string
+          x-stoplight:
+            id: ewhp24veqfkmr
+          format: date-time
+          description: Timestamp of when the location was detected on the Bosch ConnectModule.
+      required:
+        - latitude
+        - longitude
+        - altitude
+        - horizontalAccuracy
+        - verticalAccuracy
+        - detectedAt
+    Problem:
+      type: object
+      title: Problem
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: |
+            A URI reference that uniquely identifies the problem type only in the context of the provided API. Opposed to the specification in RFC-7807, it is neither recommended to be dereferenceable and point to a human-readable documentation nor globally unique for the problem type.
+          default: 'about:blank'
+          example: /some/uri-reference
+        title:
+          type: string
+          description: |
+            A short summary of the problem type. Written in English and readable for engineers, usually not suited for non technical stakeholders and not localized.
+          example: some title for the error situation
+        status:
+          type: integer
+          format: int32
+          description: |
+            The HTTP status code generated by the origin server for this occurrence of the problem.
+          minimum: 100
+          maximum: 600
+          exclusiveMaximum: true
+        detail:
+          type: string
+          description: |
+            A human readable explanation specific to this occurrence of the problem that is helpful to locate the problem and give advice on how to proceed. Written in English and readable for engineers, usually not suited for non technical stakeholders and not localized.
+          example: some description for the error situation
+        instance:
+          type: string
+          format: uri-reference
+          description: |
+            A URI reference that identifies the specific occurrence of the problem, e.g. by adding a fragment identifier or sub-path to the problem type. May be used to locate the root of this problem in the source code.
+          example: /some/uri-reference#specific-occurrence-context
+        requestId:
+          type: string
+          format: uuid
+          description: UUID for this specific request for the support
+          example: 075be661-d3a4-460b-98de-e5d66849dd5e
+      required:
+        - type
+        - detail
+        - requestId
+      x-stoplight:
+        id: yzq5rbhw04rmd
+  securitySchemes:
+    Client:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: 'https://p9.authz.bosch.com/auth/realms/obc/protocol/openid-connect/token'
+          refreshUrl: 'https://p9.authz.bosch.com/auth/realms/obc/protocol/openid-connect/token'
+          scopes:
+            'cloud-api:webhook:write': 'Enables webhook create, read, update and delete operations.'
+      description: Bosch Identity & Access Management
+tags:
+  - name: ConnectModule Notifications
+  - name: Health
+    x-internal: true
+  - name: Admin
+    x-internal: true
+security:
+  - Client:
+      - 'cloud-api:webhook:write'

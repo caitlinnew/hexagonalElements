@@ -1,0 +1,404 @@
+openapi: 3.0.0
+x-stoplight:
+  id: lo37agk8tt07j
+info:
+  title: Activity Records API
+  version: 1.0.2
+  contact:
+    email: partnerportal.feedback@de.bosch.com
+    url: 'https://portal.bosch-ebike.com/services/cloud-api/help'
+    name: Bosch eBike Systems Partner Portal
+  description: The Activity Records API allows riders to query past activities which have been recorded using the Flow app. It provides access to activity details as well as a comprehensive activity summary after a ride is successfully finished.
+servers:
+  - url: 'https://api.bosch-ebike.com/activity/v1'
+    description: Production
+paths:
+  /activities:
+    get:
+      summary: List all activity summaries
+      x-stoplight:
+        id: pp9b64auedoz7
+      tags:
+        - Activities
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    type: object
+                    description: Pagination meta data.
+                    properties:
+                      total:
+                        type: integer
+                      offset:
+                        type: integer
+                      limit:
+                        type: integer
+                      links:
+                        type: object
+                        description: Generated links for pagination.
+                        properties:
+                          prev:
+                            type: string
+                            format: uri
+                          next:
+                            type: string
+                            format: uri
+                          last:
+                            type: string
+                            format: uri
+                          first:
+                            type: string
+                            format: uri
+                  activitySummaries:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ActivitySummary'
+                required:
+                  - activitySummaries
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+      operationId: get-activities
+      parameters:
+        - schema:
+            type: integer
+            minimum: 0
+            default: 0
+          in: query
+          name: offset
+          description: 'Used for pagination. The number of items to skip before starting to collect the result set, default is 0.'
+        - schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          in: query
+          name: limit
+          description: 'Used for pagination. The maximum number of items to return, default is 20.'
+        - schema:
+            type: string
+          in: query
+          name: sort
+          description: 'The field name to sort by (supported are: `startTime`, `title`, `distance` and `durationWithoutStops`). Default sort field is `startTime` and order is DESC. Prepend a `-` to order DESC: e.g. `title` vs. `-title`.'
+      description: Returns a list of activity summaries associated with a user.
+      security:
+        - SingleKeyID:
+            - 'cloud-api:activity:summary:read'
+  '/activities/{activityId}/details':
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: activityId
+        in: path
+        required: true
+    get:
+      summary: Retrieve details of a single activity
+      x-stoplight:
+        id: 9f4bohjujx4c0
+      tags:
+        - Activities
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activityDetails:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ActivityDetail'
+                required:
+                  - activityDetails
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+      operationId: get-activity-details
+      parameters: []
+      description: Returns a list of activity details for the given activityId associated with a user.
+      security:
+        - SingleKeyID:
+            - 'cloud-api:activity:details:read'
+components:
+  schemas:
+    ActivitySummary:
+      title: ActivitySummary
+      x-stoplight:
+        id: auid2j1mhp6sj
+      type: object
+      description: ''
+      properties:
+        id:
+          type: string
+          format: uuid
+        startTime:
+          type: string
+          description: Starting time of the activity.
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+          description: End time of the activity.
+        timeZone:
+          type: string
+          description: 'Timezone of start position, IANA.'
+          example: Europe/Berlin
+        durationWithoutStops:
+          type: integer
+          description: Duration in motion in seconds.
+        title:
+          type: string
+          description: Name of the activity.
+        bikeId:
+          type: string
+          format: uuid
+          description: Bike uuid for the trip.
+        startOdometer:
+          type: integer
+          description: Odometer at start of activity in kilometers.
+        distance:
+          type: integer
+          description: Odometer diff of activity in kilometers.
+        speed:
+          type: object
+          required:
+            - average
+            - maximum
+          properties:
+            average:
+              type: number
+              format: float
+              description: Average speed in km/h.
+            maximum:
+              type: number
+              format: float
+              description: Maximum speed in km/h.
+        cadence:
+          type: object
+          required:
+            - average
+            - maximum
+          properties:
+            average:
+              type: number
+              format: float
+              description: Average cadence in rpm.
+            maximum:
+              type: number
+              format: float
+              description: Maximum cadence in rpm.
+        riderPower:
+          type: object
+          required:
+            - average
+            - maximum
+          properties:
+            average:
+              type: number
+              format: float
+              description: Average rider power in watts.
+            maximum:
+              type: number
+              format: float
+              description: Maximum rider power in watts.
+        elevation:
+          type: object
+          required:
+            - gain
+            - loss
+          properties:
+            gain:
+              type: integer
+              description: 'Elevation gain in m, only available with Mobile.'
+            loss:
+              type: integer
+              description: 'Elevation loss in m, only available with Mobile.'
+        caloriesBurnt:
+          type: number
+          format: float
+      required:
+        - id
+        - startTime
+        - endTime
+        - timeZone
+        - durationWithoutStops
+        - bikeId
+        - startOdometer
+        - distance
+        - speed
+        - cadence
+        - riderPower
+        - elevation
+      x-examples: {}
+    ActivityDetail:
+      title: ActivityDetail
+      x-stoplight:
+        id: lndjpbiko7bqa
+      type: object
+      description: ''
+      x-examples: {}
+      properties:
+        distance:
+          type: number
+          description: Distance from start in kilometers.
+          format: double
+        altitude:
+          type: number
+          format: float
+          description: Altitude above sea level WGS84 in meters.
+        speed:
+          type: number
+          description: Speed in km/h.
+          format: float
+        cadence:
+          type: number
+          format: float
+          description: Cadence in rpm.
+        latitude:
+          type: number
+          format: double
+          description: 'Latitude in degrees, WGS84.'
+        longitude:
+          type: number
+          format: double
+          description: 'Longitude in degrees, WGS84.'
+        riderPower:
+          type: number
+          format: float
+          description: Rider power in watts.
+    Problem:
+      type: object
+      x-stoplight:
+        id: 5qnkowfunkgut
+      title: Problem
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: |
+            A URI reference that uniquely identifies the problem type only in the context of the provided API. Opposed to the specification in RFC-7807, it is neither recommended to be dereferenceable and point to a human-readable documentation nor globally unique for the problem type.
+          default: 'about:blank'
+          example: /some/uri-reference
+        title:
+          type: string
+          description: |
+            A short summary of the problem type. Written in English and readable for engineers, usually not suited for non technical stakeholders and not localized.
+          example: some title for the error situation
+        status:
+          type: integer
+          format: int32
+          description: |
+            The HTTP status code generated by the origin server for this occurrence of the problem.
+          minimum: 100
+          maximum: 600
+          exclusiveMaximum: true
+        detail:
+          type: string
+          description: |
+            A human readable explanation specific to this occurrence of the problem that is helpful to locate the problem and give advice on how to proceed. Written in English and readable for engineers, usually not suited for non technical stakeholders and not localized.
+          example: some description for the error situation
+        instance:
+          type: string
+          format: uri-reference
+          description: |
+            A URI reference that identifies the specific occurrence of the problem, e.g. by adding a fragment identifier or sub-path to the problem type. May be used to locate the root of this problem in the source code.
+          example: /some/uri-reference#specific-occurrence-context
+        requestId:
+          type: string
+          format: uuid
+          description: UUID for this specific request for the support
+          example: 075be661-d3a4-460b-98de-e5d66849dd5e
+      required:
+        - type
+        - detail
+        - requestId
+  securitySchemes:
+    SingleKeyID:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: 'https://p9.authz.bosch.com/auth/realms/obc/protocol/openid-connect/auth'
+          refreshUrl: 'https://p9.authz.bosch.com/auth/realms/obc/protocol/openid-connect/token'
+          scopes:
+            'cloud-api:activity:summary:read': Enables reading activity summary.
+            'cloud-api:activity:details:read': Enables reading activity details.
+            offline_access: Use this optional scope to request an offline token instead of a refresh token. The client application is responsible for securely persisting the offline token. The offline token never expires as long as it is used for a refresh token action at least once every 180 days.
+          tokenUrl: 'https://p9.authz.bosch.com/auth/realms/obc/protocol/openid-connect/token'
+      description: |-
+        Bosch Identity & Access Management
+
+        **Offline Access:** Client applications may use [offline_access](https://openid.net/specs/openid-connect-core-1_0.html#OfflineAccess) tokens instead of refresh tokens. See the scope description below.
+  responses:
+    '400':
+      description: Example response
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    '401':
+      description: Unauthorized
+      content:
+        text/plain:
+          schema:
+            type: string
+          examples:
+            access-token-expired:
+              value: JWT is expired
+            access-token-validation-failed:
+              value: JWT verification fails
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    '403':
+      description: Forbidden
+      content:
+        text/plain:
+          schema:
+            type: string
+          examples:
+            access-token-missing:
+              value: 'RBAC: access denied'
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    '404':
+      description: Example response
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    '500':
+      description: Internal Server Error
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          examples:
+            internal-server-error:
+              value:
+                detail: an unexpected error occured
+                requestId: 798a1836-ee1a-4a39-b9e4-3f6425135bbe
+                type: /internal-server-error
+tags:
+  - name: Activities
+security:
+  - SingleKeyID: []

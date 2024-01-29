@@ -1,0 +1,15 @@
+{
+  "name": "cloud-api-specs",
+  "description": "Cloud API Specifications",
+  "version": "1.0.0",
+  "license": "UNLICENSED",
+  "private": true,
+  "devDependencies": {
+    "@stoplight/spectral-cli": "^6.11.0",
+    "http-server": "^14.1.1"
+  },
+  "scripts": {
+    "oas-lint": "spectral lint openapi/*.yaml",
+    "serve": "http-server -o -c-1"
+  }
+}

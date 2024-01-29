@@ -1,0 +1,77 @@
+{
+  "collapseTableOfContents": false,
+  "items": [
+    {
+      "type": "item",
+      "title": "Introduction",
+      "uri": "/docs/Introduction.md"
+    },
+    {
+      "type": "item",
+      "title": "Release Notes",
+      "uri": "/docs/Release-Notes.md",
+      "slug": "release-notes"
+    },
+    {
+      "type": "item",
+      "title": "Known Issues",
+      "uri": "/docs/Known-Issues.md"
+    },
+    {
+      "type": "divider",
+      "title": "APIs"
+    },
+    {
+      "type": "group",
+      "title": "Flow/Cloud API",
+      "uri": "/docs/Flow-Cloud-API.md",
+      "items": [
+        {
+          "type": "item",
+          "title": "eBike Profile API",
+          "uri": "/openapi/bike-profile.v1.yaml"
+        },
+        {
+          "type": "item",
+          "title": "Activity Records API",
+          "uri": "/openapi/activity.v1.yaml"
+        },
+        {
+          "type": "item",
+          "title": "Service Book API (Draft)",
+          "uri": "/openapi/service-book.v1.yaml"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "title": "BCM/Cloud API",
+      "uri": "/docs/BCM-Cloud-API.md",
+      "items": [
+        {
+          "type": "item",
+          "title": "ConnectModule Configuration API (Draft)",
+          "uri": "/openapi/bcm-configuration.v1.yaml"
+        },
+        {
+          "type": "item",
+          "title": "ConnectModule Notification API (Draft)",
+          "uri": "/openapi/notification.v1.yaml"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "title": "Data/Cloud API",
+      "uri": "/docs/Data-Cloud-API.md",
+      "items": [
+        {
+          "type": "item",
+          "title": "Bike Model Ingestion API (Beta)",
+          "uri": "/openapi/bike-model-ingestion.v1.yaml",
+          "slug": "bike-model-ingestion-api"
+        }
+      ]
+    }
+  ]
+}

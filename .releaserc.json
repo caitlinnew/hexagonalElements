@@ -1,0 +1,19 @@
+{
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/github",
+      {
+        "githubUrl": "https://github.boschdevcloud.com",
+        "githubApiPathPrefix": "api/v3"
+      }
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        "generateNotesCmd": "echo -n '${nextRelease.version}' > NEW_RELEASE"
+      }
+    ]
+  ]
+}

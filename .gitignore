@@ -1,0 +1,4 @@
+node_modules
+openapi/cloud-api.gen.local.v1.yaml
+.spectral.mjs
+.stoplight/styleguide.json

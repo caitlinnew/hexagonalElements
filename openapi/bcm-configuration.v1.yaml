@@ -1,0 +1,759 @@
+openapi: 3.0.0
+x-stoplight:
+  id: qgwqhnjrxj89s
+info:
+  title: ConnectModule Configuration API
+  version: '2023-12-14'
+  description: |-
+    <!-- theme: info -->
+
+    > #### This is an API draft
+
+    The ConnectModule API empowers you to read and update configurations of Bosch ConnectModules (BCM), for which you have configuration permissions only. Features can be enabled/disabled by updating the BCM configuration. BCMs are enabled for remote configuration by default only with software version >= `BES3_12`. Older software versions are not supported.
+  contact:
+    name: Bosch eBike Systems Partner Portal
+    url: 'https://portal.bosch-ebike.com/services/cloud-api/help'
+    email: partnerportal.feedback@de.bosch.com
+servers:
+  - url: 'https://api.bosch-ebike.com/connect-module/v1'
+    description: Production
+paths:
+  /connect-modules:
+    parameters: []
+    get:
+      summary: List all ConnectModules
+      tags:
+        - ConnectModule Configurations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  connectModules:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConnectModule'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+      operationId: get-connect-modules
+      parameters:
+        - $ref: '#/components/parameters/bikeId'
+        - $ref: '#/components/parameters/oemBikeId'
+        - $ref: '#/components/parameters/oemBrandId'
+      security:
+        - Client:
+            - 'cloud-api:device-configuration:write'
+      description: |-
+        Returns a list of all ConnectModule belonging to the authenticated client.
+
+        Additional filters can be applied by using the query parameters `bikeId`, `oemBikeId` and `oemBrandId`.
+      x-stoplight:
+        id: udlhoua37kmke
+  '/connect-modules/{moduleId}':
+    parameters:
+      - $ref: '#/components/parameters/moduleId'
+    get:
+      summary: Retrieve a single ConnectModule
+      tags:
+        - ConnectModule Configurations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectModule'
+              examples:
+                All features disabled:
+                  value:
+                    id: BCM3100_EB1310000B_17918-0052-01-368-00-0000
+                    bikeId: 7255dccf-c929-41f7-9aa6-a043f6096e19
+                    oemBikeId: ZMFPKXJ9Y6ZRSTW4
+                    oemBrandId: YOUR-BRAND
+                    createdAt: '2023-06-29T14:31:00.002Z'
+                    updatedAt: '2023-06-29T14:31:00.002Z'
+                    syncedAt: '2023-06-29T14:35:00.002Z'
+                    syncStatus: SUCCESS
+                    features:
+                      - type: LOCATION_TRACKING
+                        status: DISABLED
+                        updatedAt: '2023-06-29T14:31:00.002Z'
+                        requestedProfile: NONE
+                        appliedProfile: NONE
+                      - type: BIKE_STATUS
+                        status: DISABLED
+                        updatedAt: '2023-06-29T14:31:00.002Z'
+                        requestedProfile: NONE
+                        appliedProfile: NONE
+                LocationTracking feature pending:
+                  value:
+                    id: BCM3100_EB1310000B_17918-0052-01-368-00-0000
+                    bikeId: 7255dccf-c929-41f7-9aa6-a043f6096e19
+                    oemBikeId: ZMFPKXJ9Y6ZRSTW4
+                    oemBrandId: YOUR-BRAND
+                    createdAt: '2023-06-29T14:31:00.002Z'
+                    updatedAt: '2023-06-29T14:39:00.002Z'
+                    syncedAt: '2023-06-29T14:35:00.002Z'
+                    syncStatus: PENDING
+                    features:
+                      - type: LOCATION_TRACKING
+                        status: PENDING
+                        updatedAt: '2023-06-29T14:39:00.002Z'
+                        requestedProfile: DEFAULT
+                        appliedProfile: NONE
+                      - type: BIKE_STATUS
+                        status: DISABLED
+                        updatedAt: '2023-06-29T14:31:00.002Z'
+                        requestedProfile: NONE
+                        appliedProfile: NONE
+                LocationTracking feature enabled:
+                  value:
+                    id: BCM3100_EB1310000B_17918-0052-01-368-00-0000
+                    bikeId: 7255dccf-c929-41f7-9aa6-a043f6096e19
+                    oemBikeId: ZMFPKXJ9Y6ZRSTW4
+                    oemBrandId: YOUR-BRAND
+                    createdAt: '2023-06-29T14:31:00.002Z'
+                    updatedAt: '2023-06-29T14:39:00.002Z'
+                    syncedAt: '2023-06-29T14:40:00.002Z'
+                    syncStatus: SUCCESS
+                    features:
+                      - type: LOCATION_TRACKING
+                        status: ENABLED
+                        updatedAt: '2023-06-29T14:39:00.002Z'
+                        requestedProfile: DEFAULT
+                        appliedProfile: DEFAULT
+                      - type: BIKE_STATUS
+                        status: DISABLED
+                        updatedAt: '2023-06-29T14:31:00.002Z'
+                        requestedProfile: NONE
+                        appliedProfile: NONE
+                LocationTracking feature error:
+                  value:
+                    id: BCM3100_EB1310000B_17918-0052-01-368-00-0000
+                    bikeId: 7255dccf-c929-41f7-9aa6-a043f6096e19
+                    oemBikeId: ZMFPKXJ9Y6ZRSTW4
+                    oemBrandId: YOUR-BRAND
+                    createdAt: '2023-06-29T14:31:00.002Z'
+                    updatedAt: '2023-06-29T14:39:00.002Z'
+                    syncedAt: '2023-06-29T14:40:00.002Z'
+                    syncStatus: ERROR
+                    features:
+                      - type: LOCATION_TRACKING
+                        status: ERROR
+                        updatedAt: '2023-06-29T14:39:00.002Z'
+                        requestedProfile: DEFAULT
+                        appliedProfile: NONE
+                      - type: BIKE_STATUS
+                        status: DISABLED
+                        updatedAt: '2023-06-29T14:31:00.002Z'
+                        requestedProfile: NONE
+                        appliedProfile: NONE
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Calculated value to check with the `If-None-Match` request header  if the resource has changed.
+        '304':
+          description: Not Modified
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+      operationId: get-connect-modules-moduleId
+      description: |-
+        Returns a ConnectModule belonging to the authenticated client.
+
+        This endpoint supports `ETag` (entity tag), a HTTP response header, to check if the resource has changed.
+        ETags can be used by API clients for caching and conditional requests to save bandwidth by using the `If-None-Match` HTTP request header.
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: If-None-Match
+          description: 'Use the value of the previously received ETag response header to check if the resource has changed. If so, you get the HTTP response status `200`, the current version of the resource and a new ETag response header. In case the resource has not changed you just get the HTTP response status `304`.'
+      security:
+        - Client:
+            - 'cloud-api:device-configuration:write'
+      x-stoplight:
+        id: 3zfici52kuscu
+  '/connect-modules/{moduleId}/features/{featureType}':
+    parameters:
+      - $ref: '#/components/parameters/moduleId'
+      - schema:
+          type: string
+        name: featureType
+        in: path
+        required: true
+    put:
+      summary: Configure a ConnectModule feature
+      operationId: put-connect-module-feature
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feature'
+              examples:
+                Example 1:
+                  value:
+                    type: LOCATION_TRACKING
+                    status: PENDING
+                    updatedAt: '2019-08-24T14:15:22Z'
+                    requestedProfile: DEFAULT
+                    appliedProfile: NONE
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+        - ConnectModule Configurations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Feature'
+      parameters: []
+      security:
+        - Client:
+            - 'cloud-api:device-configuration:write'
+      description: |
+        Use this operation to enable or disable a ConnectModule features such as `LOCATION_TRACKING` and `BIKE_STATUS`.
+
+        You must select for each feature a predefined profile in order to control the collection and transmission rate of the data sent from the BCM to the Bosch cloud. Each feature provides at least the profiles `DEFAULT` and `NONE`. Features can also provide additional profiles.
+
+        The following table explains the feature profiles in detail:
+
+        | Feature      | Profile      | Description      | Immediate Triggers to send data     | Intervall to send data |
+        | :---        | :---        | :---        | :---        |    :----:   |
+        | BIKE_STATUS      | DEFAULT      | Use this profile to send data during eBike usage      | eBike on/off, BCM needs charge, BCM charge critical, charger connected      | Every 4 minutes if eBike is moving or charger is connected, every 24 hours        |
+        | BIKE_STATUS      | CHARGING   |   Use this profile to send data only during charging      | eBike charging started, eBike fully charged, charger disconnected      | Every 5 minutes while eBike is charging or charger is connected        |
+        | LOCATION_TRACKING      | DEFAULT   |   Use this profile to send data during eBike motion      | N/A      | Every 4 minutes if eBike is moving, every 24 hours        |
+        | LOCATION_TRACKING/ BIKE_STATUS      | NONE      | Disables the feature      | N/A      | N/A        |
+
+        Configuration updates will set the feature syncStatus first to `PENDING`. With the next eBike *power-on*, the BCM requests the latest configuration, applies it and sends a confirmation back to the Bosch cloud. The feature syncStatus will be `SUCCESS` in case of success. There is also a status for `WARNING` and `ERROR`.
+
+        Once a feature is enabled the BCM starts sending data according to the configured profile.
+      x-stoplight:
+        id: qgi6l617p55it
+  '/internal/connect-module-configurations/{moduleId}':
+    get:
+      summary: Retrieve a configuration
+      tags:
+        - Internal ConnectModule Configurations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/vnd.google.protobuf:
+              schema:
+                type: string
+                format: binary
+          headers: {}
+        '304':
+          description: Not Modified
+          headers: {}
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+      operationId: get-internal-connect-module-configurations
+      x-internal: true
+      parameters:
+        - schema:
+            type: boolean
+            default: false
+          in: query
+          name: force
+          description: 'Forces to get the current configuration, even if there was no change since the last confirmation.'
+      security:
+        - Client:
+            - 'bcm:internal-device-configuration:write'
+      description: |-
+        Returns the current configuration of the requested ConnectModule as `application/vnd.google.protobuf`.
+
+        This operation uses the protobuf schema [deviceConfigurationConfirmation](https://datamodel.ebike.dev/connectModuleBackend/deviceConfigurationConfirmation) as response body.
+      x-stoplight:
+        id: 6pjp0sa7bco47
+    parameters:
+      - $ref: '#/components/parameters/moduleId'
+    put:
+      summary: Create or update a configuration
+      operationId: put-internal-connect-module-configurations
+      responses:
+        '201':
+          description: Created/Updated
+          content:
+            application/vnd.google.protobuf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+        - Internal ConnectModule Configurations
+      x-internal: true
+      requestBody:
+        required: true
+        content:
+          application/vnd.google.protobuf:
+            schema:
+              type: string
+              format: binary
+        description: ''
+      security:
+        - Client:
+            - 'bcm:internal-device-configuration:write'
+      parameters: []
+      description: |-
+        Initial creation or update of an existing ConnectModule configuration.
+
+        In case of success (create or upate) the HTTP response status code is always `201`!
+        We must not use the HTTP response status code `200` for updates, because this is mapped to the CoAP response `2.05` in BCM CoAP proxy. And `2.05` must be used only for CoAP GET requests.
+
+        See this [JIRA issue](https://ebike.atlassian.net/browse/BCMCL-114) for more details.
+
+        This operation uses the protobuf schema [deviceConfigurationInitialization](https://datamodel.ebike.dev/connectModuleBackend/deviceConfigurationInitialization) as request and [deviceConfiguration](https://datamodel.ebike.dev/connectModuleBackend/deviceConfiguration) as response body.
+      x-stoplight:
+        id: mpxi6cvuppp35
+  '/internal/connect-module-configurations/{moduleId}/confirmation':
+    parameters:
+      - schema:
+          type: string
+        name: moduleId
+        in: path
+        required: true
+    post:
+      summary: Confirm a remote configuration change
+      operationId: post-internal-connect-module-configurations-confirmation
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '409':
+          $ref: '#/components/responses/409'
+        '500':
+          $ref: '#/components/responses/500'
+      tags:
+        - Internal ConnectModule Configurations
+      requestBody:
+        required: true
+        content:
+          application/vnd.google.protobuf:
+            schema:
+              type: string
+              format: binary
+      x-internal: true
+      parameters: []
+      security:
+        - Client:
+            - 'bcm:internal-device-configuration:write'
+      description: |-
+        Confirms a remote ConnectModule configuration change.
+
+        This operation uses the protobuf schema [deviceConfigurationConfirmation](https://datamodel.ebike.dev/connectModuleBackend/deviceConfigurationConfirmation) as request body.
+      x-stoplight:
+        id: q3j5u35q1o777
+  /health:
+    get:
+      summary: health
+      tags:
+        - Internal Health
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                      - UP
+                      - WARN
+                required:
+                  - status
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-cache
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                      - DOWN
+                required:
+                  - status
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-cache
+      operationId: get-health
+      x-internal: true
+      description: Health status of the bcm configuration service. Indicates whether the service status is acceptable or not.
+      security: []
+      x-stoplight:
+        id: vy4wxh308av41
+    parameters: []
+components:
+  schemas:
+    ConnectModule:
+      title: ConnectModule
+      x-stoplight:
+        id: z99cuyfyyf531
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: BCM unique identifier. Combination of `productCode` _ `partNumber` _ `serialNumber`.
+          example: BCM3100_EB1310000B_17918-0052-01-368-00-0000
+          x-faker:
+            random.arrayElement:
+              - - BCM3100_EB1310000B_24008-4711-01-368-02-0000
+                - BCM3100_EB1310000B_28015-0918-01-007-03-0000
+                - BCM3100_EB1310000B_23924-0035-01-666-02-0000
+          readOnly: true
+        bikeId:
+          type: string
+          x-stoplight:
+            id: 785t3f7j9b21h
+          description: Bosch unique eBike ID.
+          format: uuid
+          example: 7255dccf-c929-41f7-9aa6-a043f6096e19
+          readOnly: true
+        oemBikeId:
+          type: string
+          x-stoplight:
+            id: fohqmz1j0wk72
+          description: OEM unique eBike ID.
+          maxLength: 30
+          minLength: 1
+          example: ZMFPKXJ9Y6ZRSTW4
+          x-faker:
+            random.alphaNumeric:
+              - 16
+          readOnly: true
+        oemBrandId:
+          type: string
+          x-stoplight:
+            id: wjux6t9cve1rb
+          description: OME brand identifier.
+          minLength: 1
+          maxLength: 30
+          example: YOUR-BRAND
+          x-faker:
+            random.arrayElement:
+              - - YOUR-BRAND
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          example: '2023-03-01T14:31:00.002Z'
+          description: Timestamp when the configuration was created in the cloud.
+          x-faker: date.past
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2023-03-05T14:31:00.002Z'
+          description: Timestamp when the configuration was updated in the cloud.
+          x-faker: date.recent
+          readOnly: true
+        syncedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the configuration was applied on the ConnectModule.
+          x-faker: date.recent
+          readOnly: true
+        syncStatus:
+          type: string
+          enum:
+            - PENDING
+            - SUCCESS
+            - ERROR
+          default: SUCCESS
+          description: |-
+            Indicates the synchronization status of the configuration between the cloud and the ConnectModule.
+            - PENDING -> Current configuration not yet synchronized with the ConnectModule
+            - SUCCESS -> Successfully applied configuration on the ConnectModule
+            - ERROR -> Configuration could not be applied on the ConnectModule
+          readOnly: true
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feature'
+      required:
+        - id
+        - bikeId
+        - oemBikeId
+        - oemBrandId
+        - createdAt
+        - updatedAt
+        - syncStatus
+        - features
+    Feature:
+      title: Feature
+      x-stoplight:
+        id: f0679cufffulg
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum:
+            - LOCATION_TRACKING
+            - BIKE_STATUS
+          description: Available features.
+          readOnly: true
+        status:
+          type: string
+          enum:
+            - PENDING
+            - ENABLED
+            - DISABLED
+            - ERROR
+          description: |-
+            Indicates the synchronization status of the feature configuration between the cloud and the ConnectModule.
+            - PENDING -> Current configuration not yet synchronized with the ConnectModule
+            - ENABLED -> Successfully applied requested feature profile on the ConnectModule
+            - DISABLED -> Successfully revoked feature profile on the ConnectModule
+            - ERROR -> Configuration changes could not be applied on the ConnectModule
+          default: DISABLED
+          readOnly: true
+        requestedProfile:
+          type: string
+          description: The requested feature profile.
+          default: NONE
+          maxLength: 30
+          minLength: 1
+          x-faker:
+            random.arrayElement:
+              - - NONE
+                - DEFAULT
+                - BATTERY_ONLY
+        appliedProfile:
+          type: string
+          description: The last known feature profile applied on the ConnectModule.
+          example: NONE
+          maxLength: 30
+          minLength: 1
+          x-faker:
+            random.arrayElement:
+              - - NONE
+                - DEFAULT
+                - BATTERY_ONLY
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the feature configuration was updated in the cloud.
+          x-faker: date.recent
+          readOnly: true
+      required:
+        - type
+        - status
+        - requestedProfile
+        - appliedProfile
+        - updatedAt
+    Problem:
+      type: object
+      title: Problem
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: |
+            A URI reference that uniquely identifies the problem type only in the context of the provided API. Opposed to the specification in RFC-7807, it is neither recommended to be dereferenceable and point to a human-readable documentation nor globally unique for the problem type.
+          default: 'about:blank'
+          example: /some/uri-reference
+        title:
+          type: string
+          description: |
+            A short summary of the problem type. Written in English and readable for engineers, usually not suited for non technical stakeholders and not localized.
+          example: some title for the error situation
+        status:
+          type: integer
+          format: int32
+          description: |
+            The HTTP status code generated by the origin server for this occurrence of the problem.
+          minimum: 100
+          maximum: 600
+          exclusiveMaximum: true
+        detail:
+          type: string
+          description: |
+            A human readable explanation specific to this occurrence of the problem that is helpful to locate the problem and give advice on how to proceed. Written in English and readable for engineers, usually not suited for non technical stakeholders and not localized.
+          example: some description for the error situation
+        instance:
+          type: string
+          format: uri-reference
+          description: |
+            A URI reference that identifies the specific occurrence of the problem, e.g. by adding a fragment identifier or sub-path to the problem type. May be used to locate the root of this problem in the source code.
+          example: /some/uri-reference#specific-occurrence-context
+        requestId:
+          type: string
+          format: uuid
+          description: UUID for this specific request for the support
+          example: 075be661-d3a4-460b-98de-e5d66849dd5e
+      required:
+        - type
+        - detail
+        - requestId
+      x-stoplight:
+        id: t4gpw4gpjd5zq
+  securitySchemes:
+    Client:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: 'https://p9.authz.bosch.com/auth/realms/obc/protocol/openid-connect/token'
+          refreshUrl: 'https://p9.authz.bosch.com/auth/realms/obc/protocol/openid-connect/token'
+          scopes:
+            'cloud-api:device-configuration:write': Enables read and update operations.
+      description: Bosch Identity & Access Management
+  responses:
+    '400':
+      description: Example response
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    '401':
+      description: Example response
+      content:
+        text/plain:
+          schema:
+            type: string
+          examples:
+            access-token-expired:
+              value: JWT is expired
+            access-token-validation-failed:
+              value: JWT verification fails
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    '403':
+      description: Example response
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    '404':
+      description: Example response
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    '409':
+      description: Example response
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    '500':
+      description: Example response
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  parameters:
+    bikeId:
+      name: bikeId
+      in: query
+      required: false
+      schema:
+        type: string
+        format: uuid
+        example: 971f1c0e-48dd-4fad-9776-c3dae3634b52
+      description: Bosch unique eBike ID.
+    moduleId:
+      name: moduleId
+      in: path
+      required: true
+      schema:
+        type: string
+        example: BCM3100_EB1310000B_17918-0052-01-368-00-0000
+      description: BCM unique identifier. Combination of `productCode` _ `partNumber` _ `serialNumber`.
+    oemBikeId:
+      name: oemBikeId
+      in: query
+      required: false
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 30
+      description: OEM unique eBike ID.
+    oemBrandId:
+      name: oemBrandId
+      in: query
+      required: false
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 30
+      description: OME brand identifier.
+  examples: {}
+security:
+  - Client: []
+tags:
+  - name: ConnectModule Configurations
+  - name: Internal ConnectModule Configurations
+    x-internal: true
+  - name: Internal Health
+    x-internal: true
